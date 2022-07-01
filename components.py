@@ -7,9 +7,23 @@ class Component:
         self.name = "unnamed"
         self.spec = spec
         self.nodes = nodes
+        self.points = []
     
     def translate(self, point):
+
         return [point[0] + self.start[0], point[1] + self.start[1]]
+    
+    def add_point(self, point):
+        self.points.append(self.translate(point))
+    
+    def plot_child(self, child_number, node_location):
+        if len(self.nodes) <= child_number: return
+
+        child = self.nodes[child_number]
+        self.points.extend(child.plot(self.translate(node_location)))
+
+
+
 
 
 class MicrostripLine(Component):
@@ -22,14 +36,13 @@ class MicrostripLine(Component):
     
     def plot(self, start):
         self.start = start
-        output = []
-        output.append(self.translate([0, self.width/2]))
-        output.append(self.translate([self.length, self.width/2]))
-        if len(self.nodes) > 0: output.extend(self.nodes[0].plot(self.translate([self.length, 0])))
-        output.append(self.translate([self.length, -self.width/2]))
-        output.append(self.translate([0, -self.width/2]))
+        self.add_point([0, self.width/2])
+        self.add_point([self.length, self.width/2])
+        if len(self.nodes) > 0: self.plot_child(self.nodes[0], [self.length, 0])
+        self.add_point([self.length, -self.width/2])
+        self.add_spoint([0, -self.width/2])
 
-        return output
+        return self.points
 
 
 class MatchLine(MicrostripLine):
@@ -47,34 +60,44 @@ class MicrostripToEnd(MicrostripLine):
     def plot(self, start):
         self.start = start
         length = self.end - start[0]
-        output = []
-        output.append(self.translate([0, self.width/2]))
-        output.append(self.translate([length, self.width/2]))
-        if len(self.nodes) > 0: output.extend(self.nodes[0].plot(self.translate([length, 0])))
-        output.append(self.translate([length, -self.width/2]))
-        output.append(self.translate([0, -self.width/2]))
+        self.add_point([0, self.width/2])
+        self.add_point([length, self.width/2])
+        self.plot_child(0, [length, 0])
+        self.add_point([length, -self.width/2])
+        self.add_point([0, -self.width/2])
 
-        return output
+        return self.points
 
 
 class PowerSplitter2_pinfeed(Component):
-    def __init__(self, spec, zin, zout, direction, nodes=[]):
+    def __init__(self, spec, zin, zout, hole_size, direction, nodes=[]):
         super().__init__(spec, nodes)
         z = sqrt(zout*zin*2)
         self.width = em.microstrip_width(z, spec)
         self.branch_length = em.effective_wavelength(self.width, spec)/4
-    
+
+        self.hole_size = hole_size
+
     def plot(self, start):
         self.start = start
-        output = []
-        output.append(self.translate([-self.branch_length, self.width/2]))
-        output.append(self.translate([self.branch_length, self.width/2]))
-        if len(self.nodes) > 0: output.extend(self.nodes[0].plot(self.translate([self.branch_length, 0])))
-        output.append(self.translate([self.branch_length, -self.width/2]))
-        output.append(self.translate([-self.branch_length, -self.width/2]))
-        if len(self.nodes) > 1: output.extend(self.nodes[1].plot(self.translate([-self.branch_length, 0])))
 
-        return output
+        
+        self.add_point([self.branch_length, self.width/2])
+        self.plot_child(0, [self.branch_length, 0])
+        self.add_point([self.branch_length, -self.width/2])
+        self.add_point([-self.branch_length, -self.width/2])
+        self.plot_child(1, [-self.branch_length, 0])
+        self.add_point([-self.branch_length, self.width/2])
+        
+        self.add_point([0, self.width/2])
+        self.add_point([0, self.hole_size])
+        self.add_point([-self.hole_size, 0])
+        self.add_point([0, -self.hole_size])
+        self.add_point([self.hole_size, 0])
+        self.add_point([0, self.hole_size])
+        self.add_point([0, self.width/2])
+
+        return self.points
 
 class PowerSplitter2_linefeed(Component):
     def __init__(self, spec, zin, zout, direction, nodes=[]):
@@ -86,22 +109,21 @@ class PowerSplitter2_linefeed(Component):
     
     def plot(self, start):
         self.start = start
-        output = []
 
-        output.append(self.translate([self.feed_width/2, 0]))
-        output.append(self.translate([self.feed_width/2, self.width/2]))
+        self.add_point([self.feed_width/2, 0])
+        self.add_point([self.feed_width/2, self.width/2])
 
-        output.append(self.translate([self.branch_length, self.width/2]))
-        if len(self.nodes) > 0: output.extend(self.nodes[0].plot(self.translate([self.branch_length, 0])))
-        output.append(self.translate([self.branch_length, -self.width/2]))
-        output.append(self.translate([-self.branch_length, -self.width/2]))
-        if len(self.nodes) > 1: output.extend(self.nodes[1].plot(self.translate([-self.branch_length, 0])))
-        output.append(self.translate([-self.branch_length, self.width/2]))
+        self.add_point([self.branch_length, self.width/2])
+        self.plot_child(0, [self.branch_length, 0])
+        self.add_point([self.branch_length, -self.width/2])
+        self.add_point([-self.branch_length, -self.width/2])
+        self.plot_child(1, [-self.branch_length, 0])
+        self.add_point([-self.branch_length, self.width/2])
 
-        output.append(self.translate([-self.feed_width/2, self.width/2]))
-        output.append(self.translate([-self.feed_width/2, 0]))
+        self.add_point([-self.feed_width/2, self.width/2])
+        self.add_point([-self.feed_width/2, 0])
 
-        return output
+        return self.points
 
 class MitredBendAtPoint(Component):
     def __init__(self, spec, z, point, height, direction, nodes=[]):
@@ -116,16 +138,16 @@ class MitredBendAtPoint(Component):
         self.start = start
         length = self.point - start[0]
         sign = length/abs(length)
-        output = []
-        output.append(self.translate([0, -self.width/2]))
-        output.append(self.translate([length-sign*self.width/2, -self.width/2]))
 
-        output.append(self.translate([length-sign*self.width/2, -self.height]))
-        if len(self.nodes) > 0: output.extend(self.nodes[0].plot(self.translate([length, -self.height])))
-        output.append(self.translate([length+sign*self.width/2, -self.height]))
+        self.add_point([0, -self.width/2])
+        self.add_point([length-sign*self.width/2, -self.width/2])
 
-        output.append(self.translate([length+sign*self.width/2, -self.width/2-self.a]))
-        output.append(self.translate([length-sign*self.width/2-self.a, self.width/2]))
+        self.add_point([length-sign*self.width/2, -self.height])
+        self.plot_child(0, [length, -self.height])
+        self.add_point([length+sign*self.width/2, -self.height])
 
-        output.append(self.translate([0, self.width/2]))
-        return output
+        self.add_point([length+sign*self.width/2, -self.width/2-self.a])
+        self.add_point([length-sign*self.width/2-self.a, self.width/2])
+
+        self.add_point([0, self.width/2])
+        return self.points

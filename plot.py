@@ -50,6 +50,6 @@ def construct_array(spec):
     splitter2b = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2bb, bend2ba])
     bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, [], [splitter2b])
 
-    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, [], [bend1, bend2])
+    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
 
     return splitter1
