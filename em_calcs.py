@@ -126,9 +126,11 @@ def microstrip_patch(spec):
 # takes patch width and spec data
 # returns approximate maximum edge impedance at resonance
 # formula source: Balanis, C A 1982, "Antenna Theory: Analysis and Design"
-def microstrip_patch_impedance(width, spec):
+def microstrip_patch_impedance(spec):
     h = spec["dielectric_thickness"]
     k = spec["dielectric_constant"]
+
+    width = microstrip_patch(spec)[0]
 
     y = wavelength(spec)
 

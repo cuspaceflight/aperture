@@ -39,13 +39,13 @@ def construct_array(spec):
     tube_circumference = spec["body_radius"]*2*pi
     spacing = tube_circumference/8
 
-    #patch_impedance = em.microstrip_patch_impedance(spec)
+    patch_impedance = em.microstrip_patch_impedance(spec)
 
     patch1 = LinearPatch(spec, Dir.UP, [])
     patch2 = LinearPatch(spec, Dir.UP, [])
 
-    match1 = MatchLine(spec, 50, 144, Dir.UP, [patch1])
-    match2 = MatchLine(spec, 50, 144, Dir.UP, [patch2])
+    match1 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch1])
+    match2 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch2])
 
     bend2aa = MitredBendAtPoint(spec, 50,  3*spacing, 10, Dir.LEFT, [match1])
     bend2ab = MitredBendAtPoint(spec, 50,  spacing, 10, Dir.RIGHT, [match2])
@@ -55,8 +55,8 @@ def construct_array(spec):
     patch3 = LinearPatch(spec, Dir.UP, [])
     patch4 = LinearPatch(spec, Dir.UP, [])
 
-    match3 = MatchLine(spec, 50, 144, Dir.UP, [patch3])
-    match4 = MatchLine(spec, 50, 144, Dir.UP, [patch4])
+    match3 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch3])
+    match4 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch4])
 
 
     bend2bb = MitredBendAtPoint(spec, 50,  -spacing, 10, Dir.LEFT, [match3])
