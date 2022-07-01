@@ -1,5 +1,12 @@
 from math import sqrt
 import em_calcs as em
+from enum import Enum
+
+class Dir(Enum):
+    LEFT = 0
+    UP = 1
+    RIGHT = 2
+    DOWN = 3
 
 
 class Component:
@@ -10,6 +17,10 @@ class Component:
         self.points = []
     
     def translate(self, point):
+        if self.direction == Dir.LEFT: pass # defalt
+        if self.direction == Dir.UP: point = [point[1], -point[0]]
+        if self.direction == Dir.RIGHT: point = [-point[0], point[1]]
+        if self.direction == Dir.DOWN: point = [point[1], point[0]]
 
         return [point[0] + self.start[0], point[1] + self.start[1]]
     
@@ -38,9 +49,9 @@ class MicrostripLine(Component):
         self.start = start
         self.add_point([0, self.width/2])
         self.add_point([self.length, self.width/2])
-        if len(self.nodes) > 0: self.plot_child(self.nodes[0], [self.length, 0])
+        self.plot_child(0, [self.length, 0])
         self.add_point([self.length, -self.width/2])
-        self.add_spoint([0, -self.width/2])
+        self.add_point([0, -self.width/2])
 
         return self.points
 
@@ -75,7 +86,7 @@ class PowerSplitter2_pinfeed(Component):
         z = sqrt(zout*zin*2)
         self.width = em.microstrip_width(z, spec)
         self.branch_length = em.effective_wavelength(self.width, spec)/4
-
+        self.direction = direction
         self.hole_size = hole_size
 
     def plot(self, start):
@@ -106,7 +117,8 @@ class PowerSplitter2_linefeed(Component):
         self.width = em.microstrip_width(z, spec)
         self.feed_width = em.microstrip_width(zin, spec)
         self.branch_length = em.effective_wavelength(self.width, spec)/4
-    
+        self.direction = direction
+
     def plot(self, start):
         self.start = start
 
@@ -133,21 +145,39 @@ class MitredBendAtPoint(Component):
         self.height = height
         self.a = em.mitred_corner(self.width, spec)
         self.point = point
+        self.direction = direction
     
     def plot(self, start):
         self.start = start
-        length = self.point - start[0]
-        sign = length/abs(length)
+        length = abs(self.point - start[0])
 
         self.add_point([0, -self.width/2])
-        self.add_point([length-sign*self.width/2, -self.width/2])
+        self.add_point([length-self.width/2, -self.width/2])
 
-        self.add_point([length-sign*self.width/2, -self.height])
+        self.add_point([length-self.width/2, -self.height])
         self.plot_child(0, [length, -self.height])
-        self.add_point([length+sign*self.width/2, -self.height])
+        self.add_point([length+self.width/2, -self.height])
 
-        self.add_point([length+sign*self.width/2, -self.width/2-self.a])
-        self.add_point([length-sign*self.width/2-self.a, self.width/2])
+        self.add_point([length+self.width/2, -self.width/2-self.a])
+        self.add_point([length-self.width/2-self.a, self.width/2])
 
         self.add_point([0, self.width/2])
+        return self.points
+
+class LinearPatch(Component):
+    def __init__(self, spec, direction, node=[]):
+        super().__init__(self, spec)
+        dimensions = em.microstrip_patch(spec)
+        self.width = dimensions[0]
+        self.length = dimensions[1]
+        self.direction = direction
+
+
+    def plot(self, start):
+        self.start = start
+        self.add_point([0, self.width/2])
+        self.add_point([self.length, self.width/2])
+        self.add_point([self.length, -self.width/2])
+        self.add_point([0, -self.width/2])
+
         return self.points

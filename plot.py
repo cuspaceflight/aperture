@@ -8,12 +8,12 @@ def generate_file(spec, tree, destination):
 
     points = tree.plot([0, 0])
 
-    sheet_top_left = [-float(spec["body_radius"])*pi, -100]
+    sheet_top_left = [-float(spec["body_radius"])*pi, -140]
     sheet_bottom_right = [float(spec["body_radius"])*pi, 20]
 
     antenna_string = "  (gr_poly\n    (pts\n"
 
-    centre_offset = [210, 150] # move shape to center of page, arbitrary
+    centre_offset = [210, 200] # move shape to center of page, arbitrary
 
     sheet_top_left[0] += centre_offset[0]
     sheet_top_left[1] += centre_offset[1]
@@ -39,16 +39,30 @@ def construct_array(spec):
     tube_circumference = spec["body_radius"]*2*pi
     spacing = tube_circumference/8
 
-    
-    bend2aa = MitredBendAtPoint(spec, 50,  3*spacing, 10, [], [])
-    bend2ab = MitredBendAtPoint(spec, 50,  spacing, 10, [], [])
-    splitter2a = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2aa, bend2ab])
-    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, [], [splitter2a])
+    #patch_impedance = em.microstrip_patch_impedance(spec)
 
-    bend2ba = MitredBendAtPoint(spec, 50,  -3*spacing, 10, [], [])
-    bend2bb = MitredBendAtPoint(spec, 50,  -spacing, 10, [], [])
+    patch1 = LinearPatch(spec, Dir.UP, [])
+    patch2 = LinearPatch(spec, Dir.UP, [])
+
+    match1 = MatchLine(spec, 50, 144, Dir.UP, [patch1])
+    match2 = MatchLine(spec, 50, 144, Dir.UP, [patch2])
+
+    bend2aa = MitredBendAtPoint(spec, 50,  3*spacing, 10, Dir.LEFT, [match1])
+    bend2ab = MitredBendAtPoint(spec, 50,  spacing, 10, Dir.RIGHT, [match2])
+    splitter2a = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2aa, bend2ab])
+    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [splitter2a])
+
+    patch3 = LinearPatch(spec, Dir.UP, [])
+    patch4 = LinearPatch(spec, Dir.UP, [])
+
+    match3 = MatchLine(spec, 50, 144, Dir.UP, [patch3])
+    match4 = MatchLine(spec, 50, 144, Dir.UP, [patch4])
+
+
+    bend2bb = MitredBendAtPoint(spec, 50,  -spacing, 10, Dir.LEFT, [match3])
+    bend2ba = MitredBendAtPoint(spec, 50,  -3*spacing, 10, Dir.RIGHT, [match4])
     splitter2b = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2bb, bend2ba])
-    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, [], [splitter2b])
+    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [splitter2b])
 
     splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
 
