@@ -26,7 +26,7 @@ The workflow might look something like this:
 
 3. Run the command `python aperture.py <path>` where `<path>` is the relative path from the current directory to the specification file. To run the example included, this would be
 
-`python aperture.py examples/aquila_telem.json`
+`python aperture.py examples/aquila_gps.json`
 
 4. Some useful numbers will be printed in the console, and a .kicad_pcb file will be generated in the same location as the specification file and with the same name.
 

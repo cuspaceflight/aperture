@@ -5,6 +5,6 @@
 	"dielectric_constant":2.2,
 	"copper_thickness":0.035,
 	"dissipation_factor":0.0009,
-	"polarisation":"AXIAL",
-	"patch_count":3
+	"polarisation":"RHCP",
+	"patch_count":4
 }
