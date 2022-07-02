@@ -39,7 +39,7 @@ def construct_array(spec):
     tube_circumference = spec["body_radius"]*2*pi
     spacing = tube_circumference/8
 
-    patch_impedance = em.microstrip_patch_impedance(spec)
+    patch_impedance = em.microstrip_patch_impedance(spec, em.microstrip_patch(spec)[0])
 
     patch1 = LinearPatch(spec, Dir.UP, [])
     patch2 = LinearPatch(spec, Dir.UP, [])

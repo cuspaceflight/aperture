@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     
     patch_dimensions = em_calcs.microstrip_patch(spec)
-    patch_impedance = em_calcs.microstrip_patch_impedance(spec)
+    patch_impedance = em_calcs.microstrip_patch_impedance(spec, patch_dimensions[0])
 
     print("50 ohm width: ",em_calcs.microstrip_width(50, spec))
     print("Linear patch dimensions [width, length]: ",patch_dimensions)
