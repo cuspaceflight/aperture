@@ -8,7 +8,12 @@ def generate_file(spec, tree, destination):
 
     points = tree.plot([0, 0])
 
-    sheet_top_left = [-float(spec["body_radius"])*pi, -140]
+    furthest_point = 0
+    for p in points:
+        if p[1] < furthest_point:
+            furthest_point = p[1]
+
+    sheet_top_left = [-float(spec["body_radius"])*pi, furthest_point-20]
     sheet_bottom_right = [float(spec["body_radius"])*pi, 20]
 
     antenna_string = "  (gr_poly\n    (pts\n"
