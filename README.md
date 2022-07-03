@@ -44,6 +44,6 @@ The workflow might look something like this:
 
 *  **pcb_template.kicad_pcb** - starting point for generating kicad files of an antenna, do not move or rename!
 
-*  **/validation_models** - will contain FEKO models validating the formulas used for RF parameters
+*  **/validation_models** - contains FEKO models validating the formulas used for RF parameters (incomplete atm)
 
 *  **/examples** - contains example specification files and their outputs
