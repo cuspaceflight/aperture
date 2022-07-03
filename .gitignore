@@ -1,2 +1,12 @@
+# python caches
 __pycache__
-validation_models
+
+# FEKO generated files
+*.bof
+*.cfm
+*.cfs
+*.fek
+*.out
+*.pre
+*.str
+*.bak
