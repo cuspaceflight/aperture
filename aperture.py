@@ -58,8 +58,10 @@ if __name__ == "__main__":
     print("Quarter wave match length: ",em_calcs.effective_wavelength(match_width, spec)/4)
     print("Quarter wave match width: ", match_width)
 
-
-    tree = construct_array(spec)
+    if spec["patch_count"] == 2:
+        tree = construct_array_2axial(spec)
+    else:
+         tree = construct_array_2axial(spec)
 
     generate_file(spec, tree, sys.argv[1].replace("json", "kicad_pcb"))
     print("Output file generated at " + sys.argv[1].replace("json", "kicad_pcb"))
