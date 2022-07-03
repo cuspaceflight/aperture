@@ -4,7 +4,7 @@ Aperture is a python program to automate the design of conformal patch antenna a
 
 Specifications for a particular frequency, dielectric material, rocket tube size, polarisation etc. are stored in a JSON file which is then passed to the program as a command line argument.
 
-**Note:** this is a work in progress, but for now you can see what happens when you play around with different values in the specification file.
+**Note:** this is a work in progress, but for now you can see what happens when you play around with different values in the specification file. Currently supported paremeters are: frequency; dielectric thickness & relative permittivity; copper thickness; rocket body radius; patch count (2 or 4).
 
 Aperture is not a replacement for EM simulations as it does not perform the full 3D finite element EM analysis necessary for conformal antenna design. Microstrip lines, power splitters etc. don't care too much about being wrapped around a cylinder, but antennas do. For this reason, this program should be used alongside a software package like Altair FEKO to ensure antennas operate as required.
 
