@@ -11,10 +11,14 @@ def generate_file(spec, tree, destination):
     furthest_point = 0
     for p in points:
         if p[1] < furthest_point:
-            furthest_point = p[1]
+            furthest_point = round(p[1],1)
 
-    sheet_top_left = [-float(spec["body_radius"])*pi, furthest_point-20]
-    sheet_bottom_right = [float(spec["body_radius"])*pi, 20]
+    circumference = round(float(spec["body_radius"])*2*pi, 1)
+
+    sheet_top_left = [-circumference/2, furthest_point-20]
+    sheet_bottom_right = [circumference/2, 20]
+
+    print("Sheet size [width, height]: ", [sheet_bottom_right[0] - sheet_top_left[0], sheet_bottom_right[1] - sheet_top_left[1]])
 
     antenna_string = "  (gr_poly\n    (pts\n"
 

@@ -61,7 +61,7 @@ if __name__ == "__main__":
     if spec["patch_count"] == 2:
         tree = construct_array_2axial(spec)
     else:
-         tree = construct_array_2axial(spec)
+        tree = construct_array_4axial(spec)
 
     generate_file(spec, tree, sys.argv[1].replace("json", "kicad_pcb"))
     print("Output file generated at " + sys.argv[1].replace("json", "kicad_pcb"))
