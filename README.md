@@ -1,3 +1,5 @@
+![Four-patch antenna array PCB shape](images/example_pcb.PNG)
+
 # Aperture
 
 Aperture is a python program to automate the design of conformal patch antenna arrays and feed networks for rockets.
