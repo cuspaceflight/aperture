@@ -165,8 +165,8 @@ class MitredBendAtPoint(Component):
         return self.points
 
 class LinearPatch(Component):
-    def __init__(self, spec, direction, node=[]):
-        super().__init__(self, spec)
+    def __init__(self, spec, direction, nodes=[]):
+        super().__init__(spec, nodes)
         dimensions = em.microstrip_patch(spec)
         self.width = dimensions[0]
         self.length = dimensions[1]
@@ -179,5 +179,32 @@ class LinearPatch(Component):
         self.add_point([self.length, self.width/2])
         self.add_point([self.length, -self.width/2])
         self.add_point([0, -self.width/2])
+
+        return self.points
+
+class InsetFeed(Component):
+    def __init__(self, spec, zin, direction, nodes=[]):
+        super().__init__(spec, nodes)
+        
+        self.feed_width = em.microstrip_width(zin, spec)
+        self.inset_width = 2*self.feed_width
+
+        self.inset_dist = em.inset_distance(spec, zin)
+        self.direction = direction
+
+    def plot(self, start):
+        self.start = start
+
+        self.add_point([0, self.feed_width/2])
+        self.add_point([self.inset_dist, self.feed_width/2])
+        self.add_point([self.inset_dist, self.inset_width/2])
+        self.add_point([0, self.inset_width/2])
+
+        self.plot_child(0, [0, 0])
+
+        self.add_point([0, -self.inset_width/2])
+        self.add_point([self.inset_dist, -self.inset_width/2])
+        self.add_point([self.inset_dist, -self.feed_width/2])
+        self.add_point([0, -self.feed_width/2])
 
         return self.points

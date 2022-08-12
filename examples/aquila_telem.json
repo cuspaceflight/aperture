@@ -1,6 +1,7 @@
 {
-	"frequency": 915000000,
+	"frequency": 868000000,
 	"body_radius":63.5,
+	"feed_type":"inset",
 	"dielectric_thickness":0.51,
 	"dielectric_constant":2.2,
 	"copper_thickness":0.035,

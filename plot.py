@@ -44,7 +44,7 @@ def generate_file(spec, tree, destination):
 
     open(destination, "w").write(template)
 
-def construct_array_4axial(spec):
+def construct_array_4axial_quarter_wave(spec):
     tube_circumference = spec["body_radius"]*2*pi
     spacing = tube_circumference/8
 
@@ -77,7 +77,40 @@ def construct_array_4axial(spec):
 
     return splitter1
 
-def construct_array_2axial(spec):
+def construct_array_4axial_inset(spec):
+    tube_circumference = spec["body_radius"]*2*pi
+    spacing = tube_circumference/8
+
+    patch_impedance = em.microstrip_patch_impedance(spec, em.microstrip_patch(spec)[0])
+
+    patch1 = LinearPatch(spec, Dir.UP, [])
+    patch2 = LinearPatch(spec, Dir.UP, [])
+
+    inset1 = InsetFeed(spec, 50, Dir.UP, [patch1])
+    inset2 = InsetFeed(spec, 50, Dir.UP, [patch2])
+
+    bend2aa = MitredBendAtPoint(spec, 50,  3*spacing, 10, Dir.LEFT, [inset1])
+    bend2ab = MitredBendAtPoint(spec, 50,  spacing, 10, Dir.RIGHT, [inset2])
+    splitter2a = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2aa, bend2ab])
+    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [splitter2a])
+
+    patch3 = LinearPatch(spec, Dir.UP, [])
+    patch4 = LinearPatch(spec, Dir.UP, [])
+
+    inset3 = InsetFeed(spec, 50, Dir.UP, [patch3])
+    inset4 = InsetFeed(spec, 50, Dir.UP, [patch4])
+
+
+    bend2bb = MitredBendAtPoint(spec, 50,  -spacing, 10, Dir.LEFT, [inset3])
+    bend2ba = MitredBendAtPoint(spec, 50,  -3*spacing, 10, Dir.RIGHT, [inset4])
+    splitter2b = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2bb, bend2ba])
+    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [splitter2b])
+
+    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
+
+    return splitter1
+
+def construct_array_2axial_quarter_wave(spec):
     tube_circumference = spec["body_radius"]*2*pi
     spacing = tube_circumference/8
 
@@ -91,6 +124,23 @@ def construct_array_2axial(spec):
 
     bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [match1])
     bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [match2])
+
+    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
+
+    return splitter1
+
+def construct_array_2axial_inset(spec):
+    tube_circumference = spec["body_radius"]*2*pi
+    spacing = tube_circumference/8
+
+    patch1 = LinearPatch(spec, Dir.UP, [])
+    patch2 = LinearPatch(spec, Dir.UP, [])
+
+    inset1 = InsetFeed(spec, 50, Dir.UP, [patch1])
+    inset2 = InsetFeed(spec, 50, Dir.UP, [patch2])
+
+    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 30, Dir.LEFT, [inset1])
+    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 30, Dir.RIGHT, [inset2])
 
     splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
 

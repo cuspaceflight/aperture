@@ -5,6 +5,8 @@ from math import exp
 from math import sqrt
 from math import log
 
+from numpy import arccos
+
 c = 3e11 # mm/s
 
 # calculates wavelength in mm
@@ -135,3 +137,19 @@ def microstrip_patch_impedance(spec, width):
     g = (width/(120*y))*(1-((1/24)*(k*h)**2))
 
     return abs(1/2/g)
+
+# takes desired impedance and patch edge impedance
+# returns inset distance required to achieve match
+# assumes antenna parameters as per the above functions
+# formula source: Balanis, C A 1982, "Antenna Theory: Analysis and Design"
+def inset_distance(spec, zin):
+
+    patch_dimensions = microstrip_patch(spec)
+
+    zedge = microstrip_patch_impedance(spec, patch_dimensions[0])
+
+    length = patch_dimensions[1]
+
+    dist = length / pi * arccos(sqrt(zin/zedge))
+
+    return dist
