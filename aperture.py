@@ -55,12 +55,17 @@ if __name__ == "__main__":
     print("wavelength: ", em_calcs.wavelength(spec))
     print("Patch dimensions [width, length]: ",patch_dimensions)
     print("Patch input impedance: ", patch_impedance)
+    
+    print("\nFor patch impedance matching:")
     match_width = em_calcs.microstrip_width(sqrt(patch_impedance*50), spec)
-
-
-    print("\nQuarter wave match length: ",em_calcs.effective_wavelength(match_width, spec)/4)
+    print("Quarter wave match length: ",em_calcs.effective_wavelength(match_width, spec)/4)
     print("Quarter wave 50 Ohm match width: ", match_width)
     print("50 Ohm patch inset distance: ", em_calcs.inset_distance(spec, 50))
+
+    print("\nFor power splitter:")
+    match_width = em_calcs.microstrip_width(sqrt(100*50), spec)
+    print("100 to 50 Ohm match width: ", match_width)
+    print("Quarter wave match length: ", em_calcs.effective_wavelength(match_width, spec)/4)
     
     if spec["patch_count"] == 2:
         if spec["feed_type"] == "inset":
