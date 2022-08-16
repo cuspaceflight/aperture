@@ -1,3 +1,4 @@
+from logging import critical
 from math import sqrt
 import sys
 import json
@@ -8,11 +9,16 @@ from plot import *
 
 spec = {}
 
+def critical_error(desc):
+    print("\n***** Critical Error *****")
+    print("Error description: ", desc)
+    print("Exiting program...")
+    quit()
 
 # reads file specified in command line argument
 def read_specification_file():
     if len(sys.argv) < 2:
-        print("No specification file provided")
+        critical_error("No specification file provided")
         return 0
     
     filename = sys.argv[1]
@@ -20,20 +26,20 @@ def read_specification_file():
     try:
         specification_file = open(filename)
     except IOError:
-        print("Specification file not found")
+        critical_error("Specification file not found")
         return 0
 
     try:
         data = json.load(specification_file)
     except json.decoder.JSONDecodeError:
-        print("Selectected file is not valid JSON")
+        critical_error("Specification file is not valid JSON")
         return 0
 
     # check each parameter is present
     required_parameters = ["frequency", "body_radius", "dielectric_thickness", "dielectric_constant", "copper_thickness", "polarisation", "patch_count"]
     for param in required_parameters:
         if param not in data:
-            print("Required parameter \"" + param + "\" missing in specification file")
+            critical_error("Required parameter \"" + param + "\" missing in specification file")
             return 0
 
     return data
@@ -43,9 +49,6 @@ if __name__ == "__main__":
 
     # read data from file
     spec = read_specification_file()
-    if spec == 0: 
-        print("Critcal specification file error, quitting")
-        quit()
 
     print("\nUseful Parameters:")
     patch_dimensions = em_calcs.microstrip_patch(spec)
@@ -72,11 +75,17 @@ if __name__ == "__main__":
             tree = construct_array_2axial_inset(spec)
         elif spec["feed_type"] == "quarter_wave":
             tree = construct_array_2axial_quarter_wave(spec)
+        else:
+            critical_error("Only supported feed types are \"inset\" or \"quarter_wave\"")
     elif spec["patch_count"] == 4:
         if spec["feed_type"] == "inset":
             tree = construct_array_4axial_inset(spec)
         elif spec["feed_type"] == "quarter_wave":
             tree = construct_array_4axial_quarter_wave(spec)
+        else:
+            critical_error("Only supported feed types are \"inset\" or \"quarter_wave\"")
+    else:
+        critical_error("Only supported number of patches are 2 or 4")
 
     print("\nFinished")
     generate_file(spec, tree, sys.argv[1].replace("json", "kicad_pcb"))
