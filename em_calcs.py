@@ -121,7 +121,12 @@ def microstrip_patch(spec):
 
     width = c / (2*f*sqrt((k+1)/2))
     keff = (k+1)/2 + (k-1)/ (2*sqrt(1+12*h/width))
-    length = c / (2*f*sqrt(keff)) - 2*0.412*h*(keff+0.3)*(width/h+0.264)/(k - 0.258)/(width/h+0.8)
+    length = c / (2*f*sqrt(keff)) - 2*0.412*h*(keff+0.3)*(width/h+0.264)/(k - 0.258)/(width/h+0.8)    
+    
+    # override
+    if "patch_length" in spec:
+        length = spec["patch_length"]
+
     return [width, length]
 
 
@@ -151,5 +156,9 @@ def inset_distance(spec, zin):
     length = patch_dimensions[1]
 
     dist = length / pi * arccos(sqrt(zin/zedge))
+
+    # override
+    if "inset_distance" in spec:
+        dist = spec["inset_distance"]
 
     return dist

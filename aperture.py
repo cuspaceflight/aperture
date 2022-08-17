@@ -47,10 +47,18 @@ def read_specification_file():
 
 if __name__ == "__main__":
 
-    # read data from file
+
     spec = read_specification_file()
 
-    print("\nUseful Parameters:")
+
+    print("\nOverridden parameters:")
+    if "patch_length" in spec:
+        print("patch_length: ", spec["patch_length"])
+    if "inset_distance" in spec:
+        print("inset_distance: ", spec["inset_distance"])
+
+
+    print("\nCalculated Parameters:")
     patch_dimensions = em_calcs.microstrip_patch(spec)
     patch_impedance = em_calcs.microstrip_patch_impedance(spec, patch_dimensions[0])
     print("50 ohm width: ",em_calcs.microstrip_width(50, spec))
