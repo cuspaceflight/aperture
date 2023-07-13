@@ -182,12 +182,58 @@ class LinearPatch(Component):
 
         return self.points
 
+class SquarePatch(Component):
+    def __init__(self, spec, direction, nodes=[]):
+        super().__init__(spec, nodes)
+        dimensions = em.square_patch(spec)
+        self.width = dimensions[0]
+        self.length = dimensions[1]
+        self.direction = direction
+        if spec["polarisation"] == "rhcp":
+            self.polarisation = 1
+        elif spec["polarisation"] == "lhcp":
+            self.polarisation = -1
+        else:
+            self.polarisation = 0
+
+        self.trim = 1/8
+
+    def plot(self, start):
+        self.start = start
+        if self.polarisation == 1:
+            self.add_point([0, self.width/2])
+
+            self.add_point([self.length*(1-self.trim), self.width/2])
+            self.add_point([self.length, self.width*(1/2 - self.trim)])
+
+            self.add_point([self.length, -self.width/2])
+
+            self.add_point([self.length*self.trim, -self.width/2])
+            self.add_point([0, -self.width*(1/2 - self.trim)])
+        elif self.polarisation == -1:
+            self.add_point([0, self.width*(1/2 - self.trim)])
+            self.add_point([self.length*self.trim, self.width/2])
+
+            self.add_point([self.length, self.width/2])
+
+            self.add_point([self.length, -self.width*(1/2 - self.trim)])
+            self.add_point([self.length*(1-self.trim), -self.width/2])
+
+            self.add_point([0, -self.width/2])
+        else:
+            self.add_point([0, self.width/2])
+            self.add_point([self.length, self.width/2])
+            self.add_point([self.length, -self.width/2])
+            self.add_point([0, -self.width/2])
+
+        return self.points
+
 class InsetFeed(Component):
     def __init__(self, spec, zin, direction, nodes=[]):
         super().__init__(spec, nodes)
         
         self.feed_width = em.microstrip_width(zin, spec)
-        self.inset_width = 2*self.feed_width
+        self.inset_width = 3*self.feed_width # research needed on this
 
         self.inset_dist = em.inset_distance(spec, zin)
         self.direction = direction

@@ -1,4 +1,5 @@
 ![Four-patch antenna array PCB shape](images/example_pcb.PNG)
+![Far-field gain of solution to aquila_gps example](images/aquila_gps_field.PNG)
 
 # Aperture
 
@@ -6,9 +7,9 @@ Aperture is a python program to automate the design of conformal patch antenna a
 
 Specifications for a particular frequency, dielectric material, rocket tube size, polarisation etc. are stored in a JSON file which is then passed to the program as a command line argument.
 
-**Note:** this is a work in progress, but for now you can see what happens when you play around with different values in the specification file. Currently supported paremeters are: frequency; dielectric thickness & relative permittivity; copper thickness; rocket body radius; patch count (2 or 4).
+**Note:** this is a work in progress, but for now you can see what happens when you play around with different values in the specification file.
 
-Aperture is not a replacement for EM simulations as it does not perform the full 3D finite element EM analysis necessary for conformal antenna design. Microstrip lines, power splitters etc. don't care too much about being wrapped around a cylinder, but antennas do. For this reason, this program should be used alongside a software package like Altair FEKO to ensure antennas operate as required.
+Aperture is not a replacement for EM simulations as it does not perform any numerical EM analysis itself. Microstrip lines, power splitters etc. don't care too much about being wrapped around a cylinder, but antennas might. For this reason, this program should be used alongside an EM software package to ensure antennas operate as required. Calculated values needed to draw the model are printed to the console.
 
   
 
@@ -26,13 +27,11 @@ The workflow might look something like this:
 
 2. Navigate to it in the command line
 
-3. Run the command `python aperture.py <path>` where `<path>` is the relative path from the current directory to the specification file. To run the example included, this would be
-
-`python aperture.py examples/aquila_gps.json`
+3. Run the command `python aperture.py <path>` where `<path>` is the relative path from the current directory to the specification file. To run the example included, this would be `python aperture.py examples/aquila_gps.json`
 
 4. Some useful numbers will be printed in the console, and a .kicad_pcb file will be generated in the same location as the specification file and with the same name.
 
-  
+5. Complete the KiCAD file by adding ground planes, connector footprints, or adjusting the board cuts as necessary.
 
 ## Files
 
@@ -44,8 +43,6 @@ The workflow might look something like this:
 
 *  **plot.py** - contains the functions to construct arrays from components and output their into a file
 
-*  **pcb_template.kicad_pcb** - starting point for generating kicad files of an antenna, do not move or rename!
-
-*  **/validation_models** - contains FEKO models validating the formulas used for RF parameters (incomplete atm)
+*  **pcb_template.kicad_pcb** - header template for generating kicad files, do not move or rename!
 
 *  **/examples** - contains example specification files and their outputs

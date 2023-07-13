@@ -10,3 +10,6 @@ __pycache__
 *.pre
 *.str
 *.bak
+
+# WIP validation models
+validation_models/

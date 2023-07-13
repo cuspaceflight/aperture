@@ -145,3 +145,22 @@ def construct_array_2axial_inset(spec):
     splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
 
     return splitter1
+
+def construct_array_2rhcp_quarter_wave(spec):
+    tube_circumference = spec["body_radius"]*2*pi
+    spacing = tube_circumference/8
+
+    patch_impedance = em.microstrip_patch_impedance(spec, em.microstrip_patch(spec)[0])
+
+    patch1 = SquarePatch(spec, Dir.UP, [])
+    patch2 = SquarePatch(spec, Dir.UP, [])
+
+    match1 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch1])
+    match2 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch2])
+
+    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [match1])
+    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [match2])
+
+    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
+
+    return splitter1

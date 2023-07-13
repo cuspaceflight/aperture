@@ -129,6 +129,23 @@ def microstrip_patch(spec):
 
     return [width, length]
 
+# similar to above, but for a square patch
+def square_patch(spec):
+    h = spec["dielectric_thickness"]
+    k = spec["dielectric_constant"]
+    f = spec["frequency"]
+
+    width = c / (2*f*sqrt(k)) # first pass width
+    keff = (k+1)/2 + (k-1)/ (2*sqrt(1+12*h/width))
+    length = c / (2*f*sqrt(keff)) - 2*0.412*h*(keff+0.3)*(width/h+0.264)/(k - 0.258)/(width/h+0.8)
+    width = length
+    
+    # override
+    if "patch_length" in spec:
+        length = spec["patch_length"]
+        width = spec["patch_length"]
+
+    return [width, length]
 
 # takes patch width and spec data
 # returns approximate maximum edge impedance at resonance
