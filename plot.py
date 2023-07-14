@@ -44,123 +44,35 @@ def generate_file(spec, tree, destination):
 
     open(destination, "w").write(template)
 
-def construct_array_4axial_quarter_wave(spec):
+
+def construct_array(spec):
     tube_circumference = spec["body_radius"]*2*pi
     spacing = tube_circumference/8
 
-    patch_impedance = em.microstrip_patch_impedance(spec, em.microstrip_patch(spec)[0])
-
-    patch1 = LinearPatch(spec, Dir.UP, [])
-    patch2 = LinearPatch(spec, Dir.UP, [])
-
-    match1 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch1])
-    match2 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch2])
-
-    bend2aa = MitredBendAtPoint(spec, 50,  3*spacing, 10, Dir.LEFT, [match1])
-    bend2ab = MitredBendAtPoint(spec, 50,  spacing, 10, Dir.RIGHT, [match2])
-    splitter2a = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2aa, bend2ab])
-    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [splitter2a])
-
-    patch3 = LinearPatch(spec, Dir.UP, [])
-    patch4 = LinearPatch(spec, Dir.UP, [])
-
-    match3 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch3])
-    match4 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch4])
-
-
-    bend2bb = MitredBendAtPoint(spec, 50,  -spacing, 10, Dir.LEFT, [match3])
-    bend2ba = MitredBendAtPoint(spec, 50,  -3*spacing, 10, Dir.RIGHT, [match4])
-    splitter2b = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2bb, bend2ba])
-    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [splitter2b])
-
-    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
-
-    return splitter1
-
-def construct_array_4axial_inset(spec):
-    tube_circumference = spec["body_radius"]*2*pi
-    spacing = tube_circumference/8
-
-    patch_impedance = em.microstrip_patch_impedance(spec, em.microstrip_patch(spec)[0])
-
-    patch1 = LinearPatch(spec, Dir.UP, [])
-    patch2 = LinearPatch(spec, Dir.UP, [])
-
-    inset1 = InsetFeed(spec, 50, Dir.UP, [patch1])
-    inset2 = InsetFeed(spec, 50, Dir.UP, [patch2])
-
-    bend2aa = MitredBendAtPoint(spec, 50,  3*spacing, 10, Dir.LEFT, [inset1])
-    bend2ab = MitredBendAtPoint(spec, 50,  spacing, 10, Dir.RIGHT, [inset2])
-    splitter2a = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2aa, bend2ab])
-    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [splitter2a])
-
-    patch3 = LinearPatch(spec, Dir.UP, [])
-    patch4 = LinearPatch(spec, Dir.UP, [])
-
-    inset3 = InsetFeed(spec, 50, Dir.UP, [patch3])
-    inset4 = InsetFeed(spec, 50, Dir.UP, [patch4])
+    if spec["polarisation"] == "axial":
+        patch1 = InsetFeed(spec, 50, Dir.UP, [LinearPatch(spec, Dir.UP, [])])
+        patch2 = InsetFeed(spec, 50, Dir.UP, [LinearPatch(spec, Dir.UP, [])])
+        patch3 = InsetFeed(spec, 50, Dir.UP, [LinearPatch(spec, Dir.UP, [])])
+        patch4 = InsetFeed(spec, 50, Dir.UP, [LinearPatch(spec, Dir.UP, [])])
+    else:
+        patch_impedance = em.microstrip_patch_impedance(spec, em.square_patch(spec)[0])
+        patch1  = MatchLine(spec, 50, patch_impedance, Dir.UP, [SquarePatch(spec, Dir.UP, [])])
+        patch2  = MatchLine(spec, 50, patch_impedance, Dir.UP, [SquarePatch(spec, Dir.UP, [])])
+        patch3  = MatchLine(spec, 50, patch_impedance, Dir.UP, [SquarePatch(spec, Dir.UP, [])])
+        patch4  = MatchLine(spec, 50, patch_impedance, Dir.UP, [SquarePatch(spec, Dir.UP, [])])
+    
+    if spec["patch_count"] == 2:
+        branch1 = patch1
+        branch2 = patch2
+    elif spec["patch_count"] == 4:
+        benda = MitredBendAtPoint(spec, 50, -3*spacing, 10, Dir.RIGHT, [patch1])
+        bendb = MitredBendAtPoint(spec, 50, -spacing, 10, Dir.LEFT, [patch2])
+        bendc = MitredBendAtPoint(spec, 50, spacing, 10, Dir.RIGHT, [patch3])
+        bendd = MitredBendAtPoint(spec, 50, 3*spacing, 10, Dir.LEFT, [patch4])
+        branch1 = PowerSplitter2_linefeed(spec, 50, 50, [], [bendb, benda])
+        branch2 = PowerSplitter2_linefeed(spec, 50, 50, [], [bendd, bendc])
 
 
-    bend2bb = MitredBendAtPoint(spec, 50,  -spacing, 10, Dir.LEFT, [inset3])
-    bend2ba = MitredBendAtPoint(spec, 50,  -3*spacing, 10, Dir.RIGHT, [inset4])
-    splitter2b = PowerSplitter2_linefeed(spec, 50, 50, [], [bend2bb, bend2ba])
-    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [splitter2b])
-
-    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
-
-    return splitter1
-
-def construct_array_2axial_quarter_wave(spec):
-    tube_circumference = spec["body_radius"]*2*pi
-    spacing = tube_circumference/8
-
-    patch_impedance = em.microstrip_patch_impedance(spec, em.microstrip_patch(spec)[0])
-
-    patch1 = LinearPatch(spec, Dir.UP, [])
-    patch2 = LinearPatch(spec, Dir.UP, [])
-
-    match1 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch1])
-    match2 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch2])
-
-    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [match1])
-    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [match2])
-
-    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
-
-    return splitter1
-
-def construct_array_2axial_inset(spec):
-    tube_circumference = spec["body_radius"]*2*pi
-    spacing = tube_circumference/8
-
-    patch1 = LinearPatch(spec, Dir.UP, [])
-    patch2 = LinearPatch(spec, Dir.UP, [])
-
-    inset1 = InsetFeed(spec, 50, Dir.UP, [patch1])
-    inset2 = InsetFeed(spec, 50, Dir.UP, [patch2])
-
-    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 30, Dir.LEFT, [inset1])
-    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 30, Dir.RIGHT, [inset2])
-
-    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
-
-    return splitter1
-
-def construct_array_2rhcp_quarter_wave(spec):
-    tube_circumference = spec["body_radius"]*2*pi
-    spacing = tube_circumference/8
-
-    patch_impedance = em.microstrip_patch_impedance(spec, em.microstrip_patch(spec)[0])
-
-    patch1 = SquarePatch(spec, Dir.UP, [])
-    patch2 = SquarePatch(spec, Dir.UP, [])
-
-    match1 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch1])
-    match2 = MatchLine(spec, 50, patch_impedance, Dir.UP, [patch2])
-
-    bend1 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [match1])
-    bend2 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [match2])
-
-    splitter1 = PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend1, bend2])
-
-    return splitter1
+    bend1 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [branch1])
+    bend2 = MitredBendAtPoint(spec, 50, 2*spacing, 10, Dir.LEFT, [branch2])
+    return PowerSplitter2_pinfeed(spec, 50, 50, 0.3, [], [bend2, bend1])

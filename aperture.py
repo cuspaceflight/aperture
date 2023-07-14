@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
 
     print("\nCalculated Parameters:")
-    if spec["polarisation"] == "rhcp":
+    if spec["polarisation"] != "axial":
         patch_dimensions = em_calcs.square_patch(spec)
     else:
         patch_dimensions = em_calcs.microstrip_patch(spec)
@@ -81,26 +81,8 @@ if __name__ == "__main__":
     print("100 to 50 Ohm match width: ", match_width)
     print("Quarter wave match length: ", em_calcs.effective_wavelength(match_width, spec)/4)
     
-    if spec["polarisation"] == "axial":
-        if spec["patch_count"] == 2:
-            if spec["feed_type"] == "inset":
-                tree = construct_array_2axial_inset(spec)
-            elif spec["feed_type"] == "quarter_wave":
-                tree = construct_array_2axial_quarter_wave(spec)
-            else:
-                critical_error("Only supported feed types are \"inset\" or \"quarter_wave\"")
-        elif spec["patch_count"] == 4:
-            if spec["feed_type"] == "inset":
-                tree = construct_array_4axial_inset(spec)
-            elif spec["feed_type"] == "quarter_wave":
-                tree = construct_array_4axial_quarter_wave(spec)
-            else:
-                critical_error("Only supported feed types are \"inset\" or \"quarter_wave\"")
-        else:
-            critical_error("Only supported number of patches are 2 or 4")
-    else:
-        # work in progress
-        tree = construct_array_2rhcp_quarter_wave(spec)
+    # the actual synthesis of the antenna (see plot.py)
+    tree = construct_array(spec)
 
     print("\nFinished")
     generate_file(spec, tree, sys.argv[1].replace("json", "kicad_pcb"))
