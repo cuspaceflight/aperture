@@ -2,11 +2,9 @@ from components import *
 from math import pi
 import em_calcs as em
 
-# takes a tree of components and formats their plot into a KiCAD PCB file
-def generate_file(spec, tree, destination):
+# takes array of points and formats them into a KiCAD PCB file
+def generate_file(spec, points, destination):
     template = open("pcb_template.kicad_pcb", "r").read()
-
-    points = tree.plot([0, 0])
 
     furthest_point = 0
     for p in points:
@@ -44,7 +42,23 @@ def generate_file(spec, tree, destination):
 
     open(destination, "w").write(template)
 
+# helper function to generate DXF code for a line given two points
+def dxf_line(x1, y1, x2, y2):
+    return "\n  0\nLINE\n  8\nTOP\n  6\nCONTINUOUS\n  10\n"+str(x1)+"\n  20\n"+str(y1)+"\n  11\n"+str(x2)+"\n  21\n"+str(y2)
 
+# takes array of points and formats them into a DXF file
+def generate_dxf(spec, points, destination):
+    headers = "  0\nSECTION\n  2\nHEADER\n  0\nENDSEC\n  0\nSECTION\n  2\nTABLES\n  0\nTABLE\n  2\nLAYER\n  70\n1\n  0\nLAYER\n  2\nTOP\n  70\n0\n  62\n7\n  6\nCONTINUOUS\n  0\nENDTAB\n  0\nENDSEC\n  0\nSECTION\n  2\nENTITIES"
+    contents = ""
+
+    for i in range(len(points)-1):
+        contents += dxf_line(points[i][0], -points[i][1], points[i+1][0], -points[i+1][1])
+        pass
+    
+    contents += dxf_line(points[i+1][0], -points[i+1][1], points[0][0], -points[0][1])
+    open(destination, "w").write(headers + contents + "\n  0\nENDSEC\n  0\nEOF")
+
+# generates recursive tree of microstrip components based on specification
 def construct_array(spec):
     tube_circumference = spec["body_radius"]*2*pi
     spacing = tube_circumference/8
@@ -71,6 +85,8 @@ def construct_array(spec):
         bendd = MitredBendAtPoint(spec, 50, 3*spacing, 10, Dir.LEFT, [patch4])
         branch1 = PowerSplitter2_linefeed(spec, 50, 50, [], [bendb, benda])
         branch2 = PowerSplitter2_linefeed(spec, 50, 50, [], [bendd, bendc])
+    else:
+        return patch1 # return only a single patch with its feed, useful for validation testing
 
 
     bend1 = MitredBendAtPoint(spec, 50, -2*spacing, 10, Dir.RIGHT, [branch1])

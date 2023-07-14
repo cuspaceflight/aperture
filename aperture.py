@@ -1,4 +1,3 @@
-from logging import critical
 from math import sqrt
 import sys
 import json
@@ -83,7 +82,9 @@ if __name__ == "__main__":
     
     # the actual synthesis of the antenna (see plot.py)
     tree = construct_array(spec)
+    points = tree.plot([0, 0])
 
     print("\nFinished")
-    generate_file(spec, tree, sys.argv[1].replace("json", "kicad_pcb"))
-    print("Output file generated at " + sys.argv[1].replace("json", "kicad_pcb"))
+    generate_file(spec, points, sys.argv[1].replace("json", "kicad_pcb"))
+    generate_dxf(spec, points, sys.argv[1].replace("json", "dxf"))
+    print("Output files generated at " + sys.argv[1].replace("json", "kicad_pcb") + ", " + sys.argv[1].replace("json", "dxf"))
